@@ -4,6 +4,9 @@ services:
     container_name: app
     restart: always
     build: .
+    command: "nodemon ./bin/www"
+    volumes:    
+      - "./:/src/"  
     ports:
       - "3000:3000"
     links:

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const dbName = 'sella_api'
+const dbName = 'places_node'
 
 module.exports = {
     connect : () => mongoose.connect('mongodb://localhost/'+dbName),

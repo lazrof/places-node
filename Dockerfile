@@ -1,8 +1,8 @@
 FROM node:latest
-WORKDIR /app 
-COPY package.json package.json 
-RUN npm install 
-COPY . . 
-EXPOSE 3000 
-RUN npm install -g nodemon 
-CMD [ "nodemon", "index.js" ]
+RUN mkdir /src
+RUN npm install nodemon -g
+WORKDIR /src
+ADD package.json /src/package.json
+RUN npm install
+EXPOSE 3000
+CMD nodemon app.js
