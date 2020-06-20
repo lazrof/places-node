@@ -8,8 +8,10 @@ const Place = require('./models/Place');
 const db = require('./config/database');
 db.connect();
 
+// Routes
 var indexRouter = require('./routes/index');
-//var usersRouter = require('./routes/users');
+var places = require('./routes/places'); 
+
 
 var app = express();
 app.use(logger('dev'));
@@ -17,103 +19,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-
-
-// TEMPORAL ROUTES
+// App Routes - URLs
 app.use('/', indexRouter);
+app.use('/places', places);
 
-app.post('/places', (req, res) => {
-  Place.create({
-    title:'Sella HQ 2',
-    description: 'Dorime ameno',
-    acceptsCreditCard: false,
-    openHour: 0,
-    closeHour: 24
-  }).then(doc => {
-    res.json(doc);
-  }).catch(err => {
-    console.log(err);
-    res.json(err);
-  });
-});
-
-
-app.get('/places', (req, res) => {
-
-  Place.find({})
-    .then(docs => {
-      res.json(docs);
-    }).catch(err => {
-      console.log(err);
-      res.json(err);
-    });
-
-});
-
-app.get('/places/:id', (req, res) => {
-  //Place.findOne
-  Place.findById(req.params.id)
-    .then(doc => {
-      res.json(doc);
-    }).catch(err =>{
-      console.log(err);
-      res.json(err);
-    });
-})
-
-app.put('/places/:id', (req, res) => {
-
-  // Este .findById ejecuta puede ejecutar hooks
-  // Place.findById(req.params.id)
-  // .then(doc => {
-  //   doc.title = req.body.title;
-  //   doc.description = req.body.title;
-  //   doc.save()
-  // })
-
-  // .update recibe 2 parametros 
-  // el primero es el parametro por el cual va a buscar el documento
-  // el segundo, son los campos que se quieren actualizar del documento
-  // ademas .update actualiza todo lo que consiga en su query
-  let attributes = ['title', 'description', 'acceptsCreditCard', 'openHour', 'closeHour']
-  let placeParams = {}
-  
-  // recorremos el array de attributes para detectar que valores estan llegando en el req
-  // asi guardamos realmente los fields que se hayan editado
-  attributes.forEach(attr => {
-    if(Object.prototype.hasOwnProperty.call(req.body, attr)){
-      placeParams[attr] = req.body[attr];
-    }
-  });
-  
-  /* update devuelve una respuesta generica de que campos fueron editados, no es muy elegante realmente
-  Place.update({'_id': req.params.id}, {
-    title:'Sella HQ 2',
-    description: 'Dorime ameno',
-    acceptsCreditCard: false,
-    openHour: 0,
-    closeHour: 24
-  })*/
-  //pudimos usar .findOneAndUpdate tambien
-  Place.findByIdAndUpdate({'_id': req.params.id}, placeParams, {new:true})
-  .then(doc => {
-    res.json(doc);
-  }).catch(err => {
-    console.log();
-    res.json(err);
-  });
-})
-
-app.put('/places/:id', (req, res) => {
-  Place.findByIdAndRemove(req.params.id)
-    .then(doc => {
-      res.json({});
-    }).catch(err => {
-      console.log();
-      res.json(err);
-    });
-})
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
