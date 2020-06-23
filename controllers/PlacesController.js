@@ -2,7 +2,13 @@ const Place = require('../models/Place');
 
 function index (req, res) {
 	
-	Place.find({})
+	
+	//.paginate recibe 2 args, primero el filtro y luego la data de la paginación
+	// req.query lee los query strings de la URL
+	// sort recibe un objeto con los fields por los cuales se quiere ordenar, -1 es de mayor a menor
+	
+	//Place.find({})
+	Place.paginate({}, {page: req.query.page || 1, limit:8, sort: {'_id':-1}  })
 	.then(docs => {
 		res.json(docs);
 	}).catch(err => {
