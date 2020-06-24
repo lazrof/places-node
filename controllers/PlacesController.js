@@ -1,4 +1,5 @@
 const Place = require('../models/Place');
+const upload = require('../config/upload');
 
 // middleware
 function find(req, res, next) {
@@ -86,4 +87,14 @@ function destroy (req, res) {
 }
 
 
-module.exports = {index, create, show, update, destroy, find}
+function multerMiddleware() {
+	// si es un solo archivo usamos .single
+	// maxCount para multiples archivos
+	// el resultado de este return es un middleware por eso, en las routes queda instanciada la función
+	return upload.fields([
+		{name: 'avatar', maxCount:1},
+		{name: 'cover', maxCount:1},
+	])
+}
+
+module.exports = {index, create, show, update, destroy, find, multerMiddleware}
