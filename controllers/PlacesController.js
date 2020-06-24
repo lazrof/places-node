@@ -1,7 +1,21 @@
 const Place = require('../models/Place');
 
-function index (req, res) {
+// middleware
+function find(req, res, next) {
+
+	// params viene de 'places/:id'
+	Place.findById(req.params.id)
+	.then(place => {
+		req.place = place;
+		next();
+	}).catch(err => {
+		next(err);
+	})
 	
+}
+
+
+function index (req, res) {
 	
 	//.paginate recibe 2 args, primero el filtro y luego la data de la paginación
 	// req.query lee los query strings de la URL
@@ -17,15 +31,9 @@ function index (req, res) {
 	});
 }
 
+// detail view
 function show (req, res) {
-	
-	Place.findById(req.params.id)
-		.then(doc => {
-		res.json(doc);
-		}).catch(err =>{
-		console.log(err);
-		res.json(err);
-	});
+	res.json(req.place);
 }
 
 function create (req, res) {
@@ -54,9 +62,12 @@ function update (req, res) {
 		placeParams[attr] = req.body[attr];
 	  }
 	});
+
+	// req.place es el target y placeParams es el la fuente con los campos que vienen del request
+	// Object.assign hace un merge de las fuentes y hacia el target
+	req.place = Object.assign(req.place, placeParams);
 	
-	Place.findByIdAndUpdate({'_id': req.params.id}, placeParams, {new:true})
-	.then(doc => {
+	req.place.save().then(doc => {
 	  res.json(doc);
 	}).catch(err => {
 	  console.log();
@@ -66,8 +77,7 @@ function update (req, res) {
 
 function destroy (req, res) {
 	
-	Place.findByIdAndRemove(req.params.id)
-	.then(doc => {
+	req.place.remove().then(doc => {
 		res.json({});
 	}).catch(err => {
 		console.log();
@@ -76,4 +86,4 @@ function destroy (req, res) {
 }
 
 
-module.exports = {index, create, show, update, destroy}
+module.exports = {index, create, show, update, destroy, find}
