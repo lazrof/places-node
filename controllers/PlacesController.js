@@ -1,5 +1,6 @@
 const Place = require('../models/Place');
 const upload = require('../config/upload');
+const uploader = require('../models/Uploader');
 
 // middleware
 function find(req, res, next) {
@@ -37,7 +38,7 @@ function show (req, res) {
 	res.json(req.place);
 }
 
-function create (req, res) {
+function create (req, res, next) {
 	
 	Place.create({
 		title:req.body.title,
@@ -46,10 +47,11 @@ function create (req, res) {
 		openHour: req.body.openHour,
 		closeHour: req.body.closeHour
 	}).then(doc => {
-		res.json(doc);
+		req.place = doc;
+		next();
 	}).catch(err => {
 		console.log(err);
-		res.json(err);
+		next(err)
 	});
 }
 
@@ -97,4 +99,42 @@ function multerMiddleware() {
 	])
 }
 
-module.exports = {index, create, show, update, destroy, find, multerMiddleware}
+function saveImage(req, res) {
+	if(req.place){
+
+		const files = ['avatar', 'cover'];
+		
+		// como todas las peticiones son asincronas, no tenemos manera de saber facilmente cuando 
+		// se subio verdaderamente la foto, para eso usamos promesas, y guardamos cada una de las
+		// promesas cada petición
+		const promises = []; 
+
+		files.forEach(imageType => {
+			
+			if(req.files && req.files[imageType]){
+				let path = req.files[imageType][0].path;
+				promises.push(req.place.updateImage(path, imageType));
+			}
+		})
+		
+		// Promises.all() captura todas las promisas que se le manden y no continua con el
+		// .then() hasta que todas esten resueltas. Muy util porque aqui necesitamos subir las 
+		// 2 imagenes a cloudinary
+		Promise.all(promises).then(results =>{
+			console.log(results);
+			res.json(req.place);
+		}).catch(err => {
+			console.log(err);
+			res.json(err);
+		});
+
+
+	}else{
+		res.status(422).json({
+			error: req.error || 'Could not save place'
+		});
+	}
+	
+}
+
+module.exports = {index, create, show, update, destroy, find, multerMiddleware, saveImage}

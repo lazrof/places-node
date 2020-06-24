@@ -1,7 +1,7 @@
 module.exports = {
     cloudinary: {
-        apiKey: '439583423256799',
-        cloudName: 'djgzmwinb',
-        apiSecret: 'SmtcOABl3spQ6AZq5u6vzs7zyv8'
+        api_key: '439583423256799',
+        cloud_name: 'djgzmwinb',
+        api_secret: 'SmtcOABl3spQ6AZq5u6vzs7zyv8'
     }
 }
